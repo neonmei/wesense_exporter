@@ -31,7 +31,7 @@
             buildFlags = [ "-trimpath" ];
 
             #vendorSha256 = pkgs.lib.fakeSha256;
-            vendorSha256 = "sha256-mnBR+DqMrfamZuaFRAVwGeex69kU4ijAYwZu9PHlsJ8=";
+            vendorSha256 = "sha256-11fvdvQ+KDjv8/h6T04V3x3tESv5ub8tEdSnggO/Ok4=";
 
             meta = with pkgs.lib; {
               description = "WeSense Metric Exporter";

@@ -1,7 +1,7 @@
 {
   # Scaffold: Basic Golang Flakes
   description = "WeSense Metrics Exporter";
-  inputs.nixpkgs.url = "nixpkgs/nixos-22.05";
+  inputs.nixpkgs.url = "nixpkgs/nixos-23.11";
 
   outputs = { self, nixpkgs }:
     let
@@ -28,10 +28,8 @@
             #src = pkgs.lib.cleanSource ./.;
             src = pkgs.lib.sourceByRegex ./. ["go.mod" "go.sum" "^(cmd|model|o11y).*"];
 
-            buildFlags = [ "-trimpath" ];
-
             #vendorSha256 = pkgs.lib.fakeSha256;
-            vendorSha256 = "sha256-11fvdvQ+KDjv8/h6T04V3x3tESv5ub8tEdSnggO/Ok4=";
+            vendorHash = "sha256-11fvdvQ+KDjv8/h6T04V3x3tESv5ub8tEdSnggO/Ok4=";
 
             meta = with pkgs.lib; {
               description = "WeSense Metric Exporter";

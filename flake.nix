@@ -2,11 +2,10 @@
   # Scaffold: Basic Golang Flakes
   description = "WeSense Metrics Exporter";
   inputs.nixpkgs.url = "nixpkgs/nixos-23.11";
+  inputs.nix2container.url = "github:nlewo/nix2container";
 
-  outputs = { self, nixpkgs }:
+  outputs = { self, nixpkgs, nix2container }:
     let
-
-      lastModifiedDate = self.lastModifiedDate or self.lastModified or "19700101";
       version = "0.1.0";
       supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
 
@@ -19,7 +18,9 @@
 
       packages = forAllSystems (system:
 
-        let pkgs = nixpkgsFor.${system};
+        let
+          pkgs = nixpkgsFor.${system};
+          nix2containerPkgs = nix2container.packages.${system};
 
         in rec {
           app_go = pkgs.buildGoModule {
@@ -30,6 +31,7 @@
 
             #vendorSha256 = pkgs.lib.fakeSha256;
             vendorHash = "sha256-11fvdvQ+KDjv8/h6T04V3x3tESv5ub8tEdSnggO/Ok4=";
+	          CGO_ENABLED = 0;
 
             meta = with pkgs.lib; {
               description = "WeSense Metric Exporter";
@@ -40,9 +42,10 @@
             };
           };
 
-          app_container = pkgs.dockerTools.buildLayeredImage {
+          app_container = nix2containerPkgs.nix2container.buildImage {
             name = "${app_go.pname}";
-            tag = "${app_go.version}";
+            tag = "${app_go.version}-n";
+            maxLayers = 50;
 
             contents = with pkgs; [ app_go cacert ];
 
@@ -58,7 +61,13 @@
 
       # Go development tools
       devShell = forAllSystems (system:
-        let pkgs = nixpkgsFor.${system};
-        in pkgs.mkShell { buildInputs = with pkgs; [ podman just go gopls gotools gosec golint skopeo opentelemetry-collector-contrib]; });
+        let
+          pkgs = nixpkgsFor.${system};
+        in pkgs.mkShell {
+          buildInputs = with pkgs; [
+            podman just go gopls gotools gosec golint skopeo opentelemetry-collector-contrib
+            ];
+        }
+      );
     };
 }
